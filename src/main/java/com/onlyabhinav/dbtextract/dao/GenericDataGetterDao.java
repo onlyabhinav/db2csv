@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -15,43 +16,47 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Repository
 public class GenericDataGetterDao {
-	
-	
-	 @Autowired
-	 private JdbcTemplate jdbcTemplate;
-	 
-	 
-	 public List<Map<String, Object>> getDataFromTable(TableInfo table) {
-		 
+
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
+	public List<Map<String, Object>> getDataFromTable(TableInfo table) {
+
 		// jdbcTemplate.setDefaultDateFormat("yyyy-MM-dd");
 
-		 
 		List<Map<String, Object>> result = jdbcTemplate.queryForList(queryMaker(table));
-		
-		log.info("Resule Size :: {}",result.size());
-		 
+
+		log.info("Resule Size :: {}", result.size());
+
 		return result;
-		 
-	 }
-	 
-	 
-	 private String queryMaker(TableInfo table) {
-		 
-		 StringBuilder sb = new StringBuilder("");
-		 
+
+	}
+
+	public SqlRowSet getDataFromTable2(TableInfo table) {
+
+		SqlRowSet result = jdbcTemplate.queryForRowSet(queryMaker(table));
+
+		return result;
+
+	}
+
+	private String queryMaker(TableInfo table) {
+
+		StringBuilder sb = new StringBuilder("");
+
 		sb.append("SELECT ");
 		sb.append(table.getColumns());
 		sb.append(" FROM ");
 		sb.append(table.getName());
-		
-		if(StringUtils.hasLength(table.getCondition().trim())) {
+
+		if (StringUtils.hasLength(table.getCondition().trim())) {
 			sb.append(" WHERE ");
 			sb.append(table.getCondition());
 		}
-		
+
 		log.info("QUERY ==> {}", sb.toString());
-		
+
 		return sb.toString();
-	 }
+	}
 
 }

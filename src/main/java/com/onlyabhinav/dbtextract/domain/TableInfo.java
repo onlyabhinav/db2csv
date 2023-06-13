@@ -10,5 +10,7 @@ public class TableInfo {
 	private String name;
 	private String columns;
 	private String condition;
+	private String datecols;
+	private String dateformt;
 
 }

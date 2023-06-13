@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
 import com.onlyabhinav.dbtextract.config.TableConfig;
 import com.onlyabhinav.dbtextract.dao.GenericDataGetterDao;
 import com.onlyabhinav.dbtextract.domain.TableInfo;
 import com.onlyabhinav.dbtextract.export.CSVExportUtil;
+import com.onlyabhinav.dbtextract.export.SQLSmartUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,6 +29,9 @@ public class LaunchPad {
 	@Autowired
 	CSVExportUtil csvUtil;
 	
+	 @Autowired
+	 SQLSmartUtil sqlSmartUtil;
+	
 	public void start() {
 		log.info("Starting application...");
 		
@@ -35,19 +40,25 @@ public class LaunchPad {
 		
 		for (TableInfo currentTable : config.getTableList())
 		{
-			log.info("Starting Execution for :{}",currentTable.getName());
-			
-			List<Map<String, Object>> result = dataGetter.getDataFromTable(currentTable);
-			
-			processDBResult(currentTable, result);
-			
-			
-			log.info("COMPLETED for:{}",currentTable.getName());
-			
+			log.info("START     for :{}",currentTable.getName());
+			processTable2(currentTable);
+			log.info("COMPLETED for:{}", currentTable.getName());
 		}
 		
 	}
+
 	
+	
+	private void processTable1(TableInfo currentTable) {
+		List<Map<String, Object>> result = dataGetter.getDataFromTable(currentTable);
+		processDBResult(currentTable, result);
+	}
+	
+	
+	private void processTable2(TableInfo currentTable) {
+		SqlRowSet sqlRowset = dataGetter.getDataFromTable2(currentTable);
+		sqlSmartUtil.processSQLRowSet(sqlRowset);
+	}
 	
 	private void processDBResult(TableInfo table, List<Map<String, Object>> result ) {
 		log.info("processDBResult - START for Table: {}, Result Size:{}",table.getName(),result.size());
